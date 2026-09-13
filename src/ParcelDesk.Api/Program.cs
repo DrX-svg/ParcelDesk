@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ParcelDesk.Api.Data;
+using ParcelDesk.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,8 @@ var connectionString = builder.Configuration.GetConnectionString("ParcelDeskDb")
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ParcelDbContext>(options => options.UseMySQL(connectionString));
+
+builder.Services.AddScoped<CustomerService>();
 
 var app = builder.Build();
 
