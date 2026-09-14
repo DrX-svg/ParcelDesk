@@ -18,15 +18,21 @@ public class CustomerService
 
     public async Task<List<Customer>> GetAllAsync()
     {
-        return await _dbContext.Customers.AsNoTracking().OrderBy(customer => customer.Name).ToListAsync();
+        return await _dbContext.Customers
+                                     .AsNoTracking()
+                                     .OrderBy(customer => customer.Name)
+                                     .ToListAsync();
     }
 
     public async Task<Customer?> GetByIdAsync(int id)
     {
-        return await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(customer => customer.Id == id);
+        return await _dbContext.Customers
+                                     .AsNoTracking()
+                                     .FirstOrDefaultAsync(customer => customer.Id == id);
     }
 
-    public async Task<Customer> CreateAsync(string name,
+    public async Task<Customer> CreateAsync(
+                                            string name,
                                             string phone,
                                             string? email,
                                             string address)
@@ -46,13 +52,15 @@ public class CustomerService
         return customer;
     }
 
-    public async Task<Customer?> UpdateAsync(int id,
+    public async Task<Customer?> UpdateAsync(
+                                             int id,
                                              string name,
                                              string phone,
                                              string? email,
                                              string address)
     {
-        var customer = await _dbContext.Customers.FirstOrDefaultAsync(customer => customer.Id == id);
+        var customer = await _dbContext.Customers
+                                             .FirstOrDefaultAsync(customer => customer.Id == id);
 
         if (customer is null)
         {
@@ -69,19 +77,28 @@ public class CustomerService
         return customer;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<CustomerDeleteResult> DeleteAsync(int id)
     {
-        var customer = await _dbContext.Customers.FirstOrDefaultAsync(customer => customer.Id == id);
+        var customer = await _dbContext.Customers
+                                             .FirstOrDefaultAsync(customer => customer.Id == id);
 
         if (customer is null)
         {
-            return false;
+            return CustomerDeleteResult.NotFound;
+        }
+
+        var hasShipments = await _dbContext.Shipments
+                                                     .AnyAsync(shipment => shipment.CustomerId == id);
+
+        if (hasShipments)
+        {
+            return CustomerDeleteResult.HasShipments;
         }
 
         _dbContext.Customers.Remove(customer);
 
         await _dbContext.SaveChangesAsync();
 
-        return true;
+        return CustomerDeleteResult.Deleted;
     }
 }

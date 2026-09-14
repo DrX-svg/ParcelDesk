@@ -24,7 +24,9 @@ public class CustomersController : ControllerBase
     {
         var customers = await _customerService.GetAllAsync();
 
-        var response = customers.Select(ToResponse).ToList();
+        var response = customers
+                                .Select(ToResponse)
+                                .ToList();
 
         return Ok(response);
     }
@@ -45,22 +47,26 @@ public class CustomersController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CustomerResponse>> Create(CreateCustomerRequest request)
     {
-        var customer = await _customerService.CreateAsync(request.Name,
+        var customer = await _customerService.CreateAsync(
+                                                          request.Name,
                                                           request.Phone,
                                                           request.Email,
                                                           request.Address);
         var response = ToResponse(customer);
 
-        return CreatedAtAction(nameof(GetById),
+        return CreatedAtAction(
+                               nameof(GetById),
                                new {id = customer.Id},
                                response);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<CustomerResponse>> Update(int id,
+    public async Task<ActionResult<CustomerResponse>> Update(
+                                                             int id,
                                                              UpdateCustomerRequest request)
     {
-        var customer = await _customerService.UpdateAsync(id,
+        var customer = await _customerService.UpdateAsync(
+                                                          id,
                                                           request.Name,
                                                           request.Phone,
                                                           request.Email,
@@ -76,13 +82,18 @@ public class CustomersController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _customerService.DeleteAsync(id);
+        var result = await _customerService.DeleteAsync(id);
 
-        if (!deleted)
+        return result switch
         {
-            return NotFound();
-        }
-        return NoContent();
+            CustomerDeleteResult.Deleted => NoContent(),
+            CustomerDeleteResult.NotFound => NotFound(),
+            CustomerDeleteResult.HasShipments => Conflict(new
+            {
+                error = "Customer cannot be deleted because they have shipments."
+            }),
+            _ => StatusCode(500)
+        };
     }
 
     private static CustomerResponse ToResponse(Customer customer)

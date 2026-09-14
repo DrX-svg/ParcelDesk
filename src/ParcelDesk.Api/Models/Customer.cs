@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ParcelDesk.Api.Models;
@@ -20,4 +21,6 @@ public class Customer
     [Required]
     [MaxLength(500)]
     public string Address {get; set;} = string.Empty;
+
+    public List<Shipment> Shipments {get; set;} = new();
 }
