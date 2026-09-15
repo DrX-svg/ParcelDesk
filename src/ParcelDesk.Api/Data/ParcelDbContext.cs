@@ -14,6 +14,8 @@ public class ParcelDbContext : DbContext
 
     public DbSet<Shipment> Shipments => Set<Shipment>();
 
+    public DbSet<ShipmentStatusHistory> ShipmentStatusHistories => Set<ShipmentStatusHistory>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -36,5 +38,16 @@ public class ParcelDbContext : DbContext
                                        .WithMany(customer => customer.Shipments)
                                        .HasForeignKey(shipment => shipment.CustomerId)
                                        .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ShipmentStatusHistory>()
+                                                    .Property(history => history.Status)
+                                                    .HasConversion<string>()
+                                                    .HasMaxLength(30);
+
+        modelBuilder.Entity<ShipmentStatusHistory>()
+                                                    .HasOne(history => history.Shipment)
+                                                    .WithMany(shipment => shipment.StatusHistory)
+                                                    .HasForeignKey(history => history.ShipmentId)
+                                                    .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,15 +1,23 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using ParcelDesk.Api.Data;
 using ParcelDesk.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("ParcelDeskDb") 
-    ?? throw new InvalidOperationException("Connection string 'ParcelDeskDb' was not found.");
+var connectionString =
+    builder.Configuration.GetConnectionString("ParcelDeskDb")
+        ?? throw new InvalidOperationException("Connection string 'ParcelDeskDb' was not found.");
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(
+                        new JsonStringEnumConverter());
+                });
 
 builder.Services.AddDbContext<ParcelDbContext>(options => options.UseMySQL(connectionString));
 

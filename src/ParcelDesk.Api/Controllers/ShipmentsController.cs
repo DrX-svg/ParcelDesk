@@ -13,7 +13,7 @@ namespace ParcelDesk.Api.Controllers;
 public class ShipmentsController : ControllerBase
 {
     private readonly ShipmentService _shipmentService;
-    
+
     public ShipmentsController(ShipmentService shipmentService)
     {
         _shipmentService = shipmentService;
@@ -36,7 +36,7 @@ public class ShipmentsController : ControllerBase
     {
         var shipment = await _shipmentService.GetByIdAsync(id);
 
-        if(shipment is null)
+        if (shipment is null)
         {
             return NotFound();
         }
@@ -49,7 +49,7 @@ public class ShipmentsController : ControllerBase
     {
         var shipment = await _shipmentService.GetByAwbAsync(awb);
 
-        if(shipment is null)
+        if (shipment is null)
         {
             return NotFound();
         }
@@ -68,7 +68,7 @@ public class ShipmentsController : ControllerBase
             request.Weight,
             request.Notes);
 
-        if(shipment is null)
+        if (shipment is null)
         {
             return BadRequest(new
             {
@@ -80,9 +80,63 @@ public class ShipmentsController : ControllerBase
 
         return CreatedAtAction(
             nameof(GetById),
-            new {id = shipment.Id},
+            new { id = shipment.Id },
             response);
     }
+
+    [HttpPatch("{id:int}/status")]
+    public async Task<ActionResult<ShipmentResponse>> ChangeStatus(
+        int id,
+        UpdateShipmentStatusRequest request)
+    {
+        var newStatus = request.Status!.Value;
+
+        var result = await _shipmentService.ChangeStatusAsync(
+            id,
+            newStatus);
+
+        if (result == ShipmentStatusChangeResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        if (result == ShipmentStatusChangeResult.InvalidTransition)
+        {
+            return Conflict(new
+            {
+                error = "The requested status transition is not allowd."
+            });
+        }
+
+        var shipment = await _shipmentService.GetByIdAsync(id);
+
+        return Ok(ToResponse(shipment!));
+    }
+
+    [HttpGet("{id:int}/history")]
+    public async Task<ActionResult<List<ShipmentStatusHistoryResponse>>> GetHistory(
+        int id)
+    {
+        var history = await _shipmentService.GetHistoryAync(id);
+
+        if (history is null)
+        {
+            return NotFound();
+        }
+
+        var response = history.Select(entry =>
+                                        new ShipmentStatusHistoryResponse
+                                        {
+                                            Id = entry.Id,
+                                            ShipmentId = entry.ShipmentId,
+                                            Status = entry.Status.ToString(),
+                                            ChangedAtUtc = entry.ChangedAtUtc
+                                        }).ToList();
+
+        return Ok(response);
+    }
+
+
 
     private static ShipmentResponse ToResponse(Shipment shipment)
     {

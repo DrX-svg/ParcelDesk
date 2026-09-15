@@ -81,16 +81,105 @@ public class ShipmentService
 
         _dbContext.Shipments.Add(shipment);
 
+        var initialHistory = new ShipmentStatusHistory
+        {
+            Shipment = shipment,
+            Status = ShipmentStatus.Created,
+            ChangedAtUtc = now
+        };
+
+        _dbContext.ShipmentStatusHistories.Add(initialHistory);
+
         await _dbContext.SaveChangesAsync();
 
         return shipment;
-
     }
-        private static string GenerateAwb()
+
+    public async Task<ShipmentStatusChangeResult> ChangeStatusAsync(
+        int id,
+        ShipmentStatus newStatus)
+    {
+        var shipment = await _dbContext.Shipments
+                                                .FirstOrDefaultAsync(shipment => shipment.Id == id);
+        if (shipment is null)
+        {
+            return ShipmentStatusChangeResult.NotFound;
+        }
+
+        if (!IsTransitionAllow(shipment.Status, newStatus))
+        {
+            return ShipmentStatusChangeResult.InvalidTransition;
+        }
+
+        var now = DateTime.UtcNow;
+
+        shipment.Status = newStatus;
+        shipment.UpdatedAtUtc = now;
+
+        var historyEntry = new ShipmentStatusHistory
+        {
+            ShipmentId = shipment.Id,
+            Status = newStatus,
+            ChangedAtUtc = now
+        };
+
+        _dbContext.ShipmentStatusHistories.Add(historyEntry);
+
+        await _dbContext.SaveChangesAsync();
+
+        return ShipmentStatusChangeResult.Updated;
+    }
+
+    public async Task<List<ShipmentStatusHistory>?> GetHistoryAync(
+        int shipmentId)
+    {
+        var shipmentExists = await _dbContext.Shipments
+                                                    .AnyAsync(shipment => shipment.Id == shipmentId);
+
+        if (!shipmentExists)
+        {
+            return null;
+        }
+
+        return await _dbContext.ShipmentStatusHistories
+                                                    .AsNoTracking()
+                                                    .Where(history => history.ShipmentId == shipmentId)
+                                                    .OrderBy(history => history.ChangedAtUtc)
+                                                    .ToListAsync();
+    }
+
+    private static string GenerateAwb()
     {
         var randomPart = Guid.NewGuid()
                                         .ToString("N")[..20]
                                         .ToUpperInvariant();
         return $"PD-{randomPart}";
     }
+
+    private static bool IsTransitionAllow(
+        ShipmentStatus currentStatus,
+        ShipmentStatus newStatus)
+    {
+        return currentStatus switch
+        {
+            ShipmentStatus.Created =>
+                newStatus is ShipmentStatus.PickedUp
+                            or ShipmentStatus.Cancelled,
+
+            ShipmentStatus.PickedUp =>
+                newStatus is ShipmentStatus.InTransit
+                            or ShipmentStatus.Cancelled,
+
+            ShipmentStatus.InTransit =>
+                newStatus is ShipmentStatus.Delivered
+                            or ShipmentStatus.Cancelled,
+
+            ShipmentStatus.Delivered => false,
+
+            ShipmentStatus.Cancelled => false,
+
+            _ => false
+        };
+    }
+
 }
