@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ParcelDbContext>(options => options.UseMySQL(connectionString));
 
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<ShipmentService>();
 
 var app = builder.Build();
 
