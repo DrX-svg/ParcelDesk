@@ -17,13 +17,47 @@ public class ShipmentService
         _dbContext = dbContext;
     }
 
-    public async Task<List<Shipment>> GetAllAsync()
+    public async Task<List<Shipment>> GetAllAsync(
+        ShipmentStatus? status,
+        int? customerId,
+        string? city,
+        string? search)
     {
-        return await _dbContext.Shipments
-                                        .AsNoTracking()
-                                        .Include(shipment => shipment.Customer)
-                                        .OrderByDescending(shipment => shipment.CreatedAtUtc)
-                                        .ToListAsync();
+        IQueryable<Shipment> query = _dbContext.Shipments
+                                                        .AsNoTracking()
+                                                        .Include(shipment => shipment.Customer);
+
+        if (status.HasValue)
+        {
+            query = query.Where(shipment => shipment.Status == status.Value);
+        }
+
+        if (customerId.HasValue)
+        {
+            query = query.Where(shipment => shipment.CustomerId == customerId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            var cityTerm = city.Trim();
+
+            query = query.Where(shipment => shipment.City.Contains(cityTerm));
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchTerm = search.Trim();
+
+            query = query.Where(shipment =>
+                                    shipment.Awb.Contains(searchTerm)
+                                    || shipment.City.Contains(searchTerm)
+                                    || shipment.Customer.Name.Contains(searchTerm)
+                                    || shipment.SenderAddress.Contains(searchTerm)
+                                    || shipment.DestinationAddress.Contains(searchTerm)
+                                    || (shipment.Notes != null && shipment.Notes.Contains(searchTerm)));
+        }
+
+        return await query.OrderByDescending(shipment => shipment.CreatedAtUtc).ToListAsync();
     }
 
     public async Task<Shipment?> GetByIdAsync(int id)

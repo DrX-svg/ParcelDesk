@@ -1,0 +1,25 @@
+using Microsoft.AspNetCore.Mvc;
+using ParcelDesk.Api.DTOs.Dashboard;
+using ParcelDesk.Api.Services;
+
+namespace ParcelDesk.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class DashboardController : ControllerBase
+{
+    private readonly DashboardService _dashboardService;
+
+    public DashboardController(DashboardService dashboardService)
+    {
+        _dashboardService = dashboardService;
+    }
+
+    [HttpGet("summary")]
+    public async Task<ActionResult<DashboardSummaryResponse>> GetSummary()
+    {
+        var summary = await _dashboardService.GetSummaryAsync();
+
+        return Ok(summary);
+    }
+}

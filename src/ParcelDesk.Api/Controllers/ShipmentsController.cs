@@ -20,9 +20,15 @@ public class ShipmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ShipmentResponse>>> GetAll()
+    public async Task<ActionResult<List<ShipmentResponse>>> GetAll(
+        [FromQuery] ShipmentFilterRequest filter)
     {
-        var shipments = await _shipmentService.GetAllAsync();
+        var shipments = await _shipmentService.GetAllAsync(
+            filter.Status,
+            filter.CustomerId,
+            filter.City,
+            filter.Search
+        );
 
         var response = shipments
                                 .Select(ToResponse)

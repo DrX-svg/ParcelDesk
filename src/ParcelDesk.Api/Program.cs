@@ -23,6 +23,7 @@ builder.Services.AddDbContext<ParcelDbContext>(options => options.UseMySQL(conne
 
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ShipmentService>();
+builder.Services.AddScoped<DashboardService>();
 
 var app = builder.Build();
 
