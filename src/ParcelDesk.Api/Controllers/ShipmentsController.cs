@@ -90,6 +90,27 @@ public class ShipmentsController : ControllerBase
             response);
     }
 
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<ShipmentResponse>> Update(
+        int id,
+        UpdateShipmentRequest request)
+    {
+        var shipment = await _shipmentService.UpdateAsync(
+            id,
+            request.SenderAddress,
+            request.DestinationAddress,
+            request.City,
+            request.Weight,
+            request.Notes);
+
+        if (shipment is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(ToResponse(shipment));
+    }
+
     [HttpPatch("{id:int}/status")]
     public async Task<ActionResult<ShipmentResponse>> ChangeStatus(
         int id,

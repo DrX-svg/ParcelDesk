@@ -129,6 +129,39 @@ public class ShipmentService
         return shipment;
     }
 
+    public async Task<Shipment?> UpdateAsync(
+        int id,
+        string senderAddress,
+        string destinationAddress,
+        string city,
+        decimal weight,
+        string? notes
+    )
+    {
+        var shipment = await _dbContext.Shipments
+                                                .Include(shipment => shipment.Customer)
+                                                .FirstOrDefaultAsync(shipment => shipment.Id == id);
+
+        if (shipment is null)
+        {
+            return null;
+        }
+
+        shipment.SenderAddress = senderAddress.Trim();
+        shipment.DestinationAddress = destinationAddress.Trim();
+        shipment.City = city.Trim();
+        shipment.Weight = weight;
+        shipment.Notes = string.IsNullOrWhiteSpace(notes) 
+                                                    ? null 
+                                                    : notes.Trim();
+
+        shipment.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+
+        return shipment;
+    }
+
     public async Task<ShipmentStatusChangeResult> ChangeStatusAsync(
         int id,
         ShipmentStatus newStatus)
