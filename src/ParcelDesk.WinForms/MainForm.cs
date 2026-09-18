@@ -9,9 +9,76 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
+
+        cmbShipmentStatus.Items.AddRange(
+            [
+                "All",
+                "Created",
+                "PickedUp",
+                "InTransit",
+                "Delivered",
+                "Cancelled"
+            ]);
+
+        cmbShipmentStatus.SelectedIndex = 0;
+
         _apiClient = new ParcelDeskApiClient();
         Load += MainForm_Load;
-        buttonRefresh.Click += buttonRefresh_Click;
+        btnRefresh.Click += buttonRefresh_Click;
+        btnDashboard.Click += btnDashboard_Click;
+        btnShipments.Click += btnShipments_Click;
+
+        btnShipmentRefresh.Click += btnShipmentRefresh_Click;
+    }
+
+    private async void btnDashboard_Click(object? sender, EventArgs e)
+    {
+        shipmentsPanel.Visible = false;
+        dashboardPanel.Visible = true;
+
+        await LoadDashboardAsync();
+    }
+
+    private async void btnShipments_Click(object? sender, EventArgs e)
+    {
+        dashboardPanel.Visible = false;
+        shipmentsPanel.Visible = true;
+        await LoadShipmentsAsync();
+    }
+
+    private async void btnShipmentRefresh_Click(object? sender, EventArgs e)
+    {
+        await LoadShipmentsAsync();
+    }
+
+    private async Task LoadShipmentsAsync()
+    {
+        try
+        {
+            btnShipmentRefresh.Enabled = false;
+
+            var search = txtShipmentsSearch.Text;
+
+            var selectedStatus = cmbShipmentStatus.SelectedItem?.ToString();
+
+            var status = selectedStatus == "All" ? null : selectedStatus;
+
+            var shipments = await _apiClient.GetShipmentsAsync(search, status);
+
+            dgvShipments.DataSource = shipments;
+        }
+        catch (HttpRequestException ex)
+        {
+            MessageBox.Show(
+                $"API request failed.\n\nStatus: {ex.StatusCode}\n{ex.Message}",
+                "API Connection Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+        finally
+        {
+            btnShipmentRefresh.Enabled = true;
+        }
     }
 
     private async void MainForm_Load(object? sender, EventArgs e)
@@ -28,11 +95,11 @@ public partial class MainForm : Form
     {
         try
         {
-            buttonRefresh.Enabled = false;
+            btnRefresh.Enabled = false;
 
             var summary = await _apiClient.GetDashboardSummaryAsync();
 
-            if(summary is null)
+            if (summary is null)
             {
                 MessageBox.Show(
                     "Dashboard data could not be loaded.",
@@ -43,17 +110,17 @@ public partial class MainForm : Form
                 return;
             }
 
-            labelTotalShipmentsValue.Text = summary.TotalShipments.ToString();
+            lblTotalShipmentsValue.Text = summary.TotalShipments.ToString();
 
-            labelCreatedValue.Text = summary.Created.ToString();
+            lblCreatedValue.Text = summary.Created.ToString();
 
-            labelPickedUpValue.Text = summary.PickedUp.ToString();
+            lblPickedUpValue.Text = summary.PickedUp.ToString();
 
-            labelInTransitValue.Text = summary.InTransit.ToString();
+            lblInTransitValue.Text = summary.InTransit.ToString();
 
-            labelDeliveredValue.Text = summary.Delivered.ToString();
+            lblDeliveredValue.Text = summary.Delivered.ToString();
 
-            labelCancelledValue.Text = summary.Cancelled.ToString();
+            lblCancelledValue.Text = summary.Cancelled.ToString();
         }
         catch (HttpRequestException)
         {
@@ -65,7 +132,12 @@ public partial class MainForm : Form
         }
         finally
         {
-            buttonRefresh.Enabled = true;
+            btnRefresh.Enabled = true;
         }
+    }
+
+    private void lblShipments_Click(object sender, EventArgs e)
+    {
+
     }
 }
