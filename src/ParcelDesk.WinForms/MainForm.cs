@@ -1,4 +1,6 @@
 using ParcelDesk.WinForms.Api;
+using ParcelDesk.WinForms.Models;
+using System.Text.Json;
 
 namespace ParcelDesk.WinForms;
 
@@ -29,6 +31,24 @@ public partial class MainForm : Form
         btnShipments.Click += btnShipments_Click;
 
         btnShipmentRefresh.Click += btnShipmentRefresh_Click;
+
+        txtShipmentsSearch.KeyDown += ShipmentFilters_KeyDown;
+        cmbShipmentStatus.KeyDown += ShipmentFilters_KeyDown;
+
+        FormClosing += MainForm_FormClosing;
+    }
+
+    private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        SaveShipmentGridSettings();
+    }
+
+    private void ShipmentFilters_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter)
+            return;
+        e.SuppressKeyPress = true;
+        btnShipmentRefresh.PerformClick();
     }
 
     private async void btnDashboard_Click(object? sender, EventArgs e)
@@ -66,6 +86,9 @@ public partial class MainForm : Form
             var shipments = await _apiClient.GetShipmentsAsync(search, status);
 
             dgvShipments.DataSource = shipments;
+
+            ConfigureShipmentsGrid();
+
         }
         catch (HttpRequestException ex)
         {
@@ -139,5 +162,106 @@ public partial class MainForm : Form
     private void lblShipments_Click(object sender, EventArgs e)
     {
 
+    }
+
+    private void ConfigureShipmentsGrid()
+    {
+        ////dgvShipments.Columns[nameof(Shipment.CustomerId)].Visible = false;
+        //dgvShipments.Columns[nameof(Shipment.SenderAddress)].Visible = false;
+        //dgvShipments.Columns[nameof(Shipment.UpdatedAtUtc)].Visible = false;
+        ////dgvShipments.Columns[nameof(Shipment.Notes)].Visible = false;
+
+        dgvShipments.Columns[nameof(Shipment.Awb)].HeaderText = "AWB";
+        dgvShipments.Columns[nameof(Shipment.CustomerName)].HeaderText = "Customer";
+        //dgvShipments.Columns[nameof(Shipment.CustomerId)].HeaderText = "Customer ID";
+        dgvShipments.Columns[nameof(Shipment.DestinationAddress)].HeaderText = "Destination";
+        dgvShipments.Columns[nameof(Shipment.CreatedAtUtc)].HeaderText = "Created At";
+        dgvShipments.Columns[nameof(Shipment.Notes)].HeaderText = "Notes";
+        //dgvShipments.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.Fill);
+
+        var settingsLoaded = LoadShipmentGridSettings();
+
+        if(!settingsLoaded)
+        {
+            dgvShipments.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+    }
+
+    private readonly string _shipmentGridSettingsPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ParcelDesk",
+            "shipment-grid-colums.json");
+
+    private void SaveShipmentGridSettings()
+    {
+        var widths = new Dictionary<string, int>();
+
+        foreach (DataGridViewColumn column in dgvShipments.Columns)
+        {
+            var key = string.IsNullOrWhiteSpace(column.DataPropertyName)
+                ? column.Name
+                : column.DataPropertyName;
+            widths[key] = column.Width;
+        }
+
+        var directory = Path.GetDirectoryName(_shipmentGridSettingsPath);
+
+        if (directory is not null)
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        var json = JsonSerializer.Serialize(
+            widths,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+        File.WriteAllText(
+            _shipmentGridSettingsPath,
+            json);
+    }
+
+    private bool LoadShipmentGridSettings()
+    {
+        if (!File.Exists(_shipmentGridSettingsPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var json = File.ReadAllText(_shipmentGridSettingsPath);
+
+            var widths = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+
+            if (widths is null)
+            {
+                return false;
+            }
+
+            foreach (DataGridViewColumn column in dgvShipments.Columns)
+            {
+                var key = string.IsNullOrWhiteSpace(column.DataPropertyName)
+                    ? column.Name
+                    : column.DataPropertyName;
+
+
+                if (widths.TryGetValue(key, out var width))
+                {
+                    column.Width = width;
+                }
+            }
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
     }
 }

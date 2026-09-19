@@ -160,9 +160,10 @@ partial class MainForm
         dgvShipments.AllowUserToAddRows = false;
         dgvShipments.AllowUserToDeleteRows = false;
         dgvShipments.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        dgvShipments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        //dgvShipments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvShipments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvShipments.Location = new Point(3, 43);
+        dgvShipments.Margin = new Padding(10);
         dgvShipments.MultiSelect = false;
         dgvShipments.Name = "dgvShipments";
         dgvShipments.ReadOnly = true;
