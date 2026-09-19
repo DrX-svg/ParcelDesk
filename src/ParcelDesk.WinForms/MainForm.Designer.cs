@@ -37,6 +37,7 @@ partial class MainForm
         shipmentsPanel = new Panel();
         dgvShipments = new DataGridView();
         shipmentsHeaderPanel = new Panel();
+        btnAutoSizeCol = new Button();
         txtShipmentsSearch = new TextBox();
         cmbShipmentStatus = new ComboBox();
         btnShipmentRefresh = new Button();
@@ -160,7 +161,6 @@ partial class MainForm
         dgvShipments.AllowUserToAddRows = false;
         dgvShipments.AllowUserToDeleteRows = false;
         dgvShipments.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        //dgvShipments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvShipments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvShipments.Location = new Point(3, 43);
         dgvShipments.Margin = new Padding(10);
@@ -173,6 +173,7 @@ partial class MainForm
         // 
         // shipmentsHeaderPanel
         // 
+        shipmentsHeaderPanel.Controls.Add(btnAutoSizeCol);
         shipmentsHeaderPanel.Controls.Add(txtShipmentsSearch);
         shipmentsHeaderPanel.Controls.Add(cmbShipmentStatus);
         shipmentsHeaderPanel.Controls.Add(btnShipmentRefresh);
@@ -182,6 +183,16 @@ partial class MainForm
         shipmentsHeaderPanel.Name = "shipmentsHeaderPanel";
         shipmentsHeaderPanel.Size = new Size(1044, 37);
         shipmentsHeaderPanel.TabIndex = 5;
+        // 
+        // btnAutoSizeCol
+        // 
+        btnAutoSizeCol.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnAutoSizeCol.Location = new Point(922, 10);
+        btnAutoSizeCol.Name = "btnAutoSizeCol";
+        btnAutoSizeCol.Size = new Size(116, 23);
+        btnAutoSizeCol.TabIndex = 8;
+        btnAutoSizeCol.Text = "Auto Size Columns";
+        btnAutoSizeCol.UseVisualStyleBackColor = true;
         // 
         // txtShipmentsSearch
         // 
@@ -535,4 +546,5 @@ partial class MainForm
     private Button btnDashboard;
     private Button btnShipments;
     private Button btnCustomers;
+    private Button btnAutoSizeCol;
 }

@@ -35,11 +35,20 @@ public partial class MainForm : Form
         txtShipmentsSearch.KeyDown += ShipmentFilters_KeyDown;
         cmbShipmentStatus.KeyDown += ShipmentFilters_KeyDown;
 
+        btnAutoSizeCol.Click += btnAutoSizeCol_Click;
+
         FormClosing += MainForm_FormClosing;
     }
 
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
+        SaveShipmentGridSettings();
+    }
+
+    private void btnAutoSizeCol_Click(object? sender, EventArgs e)
+    {
+        dgvShipments.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+
         SaveShipmentGridSettings();
     }
 
