@@ -21,47 +21,54 @@ public class ParcelDeskApiClient
 
     public async Task<List<Shipment>> GetShipmentsAsync(
         string? search = null,
-        string? status = null)
+        string? status = null,
+        int? customerId = null)
+    {
+        var queryParameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            var queryParameters = new List<string>();
+            queryParameters.Add($"search={Uri.EscapeDataString(search.Trim())}");
+        }
 
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                queryParameters.Add($"search={Uri.EscapeDataString(search.Trim())}");
-            }
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            queryParameters.Add($"status={Uri.EscapeDataString(status.Trim())}");
+        }
 
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                queryParameters.Add($"status={Uri.EscapeDataString(status.Trim())}");
-            }
+        if (customerId.HasValue)
+        {
+            queryParameters.Add(
+                $"customerId={customerId.Value}");
+        }
 
-            var url = "api/shipments";
+        var url = "api/shipments";
 
-            if (queryParameters.Count > 0)
-            {
-                url += "?" + string.Join("&", queryParameters);
-            }
+        if (queryParameters.Count > 0)
+        {
+            url += "?" + string.Join("&", queryParameters);
+        }
 
-            return await _httpClient.GetFromJsonAsync<List<Shipment>>(url) ?? new List<Shipment>();
-        } 
+        return await _httpClient.GetFromJsonAsync<List<Shipment>>(url) ?? new List<Shipment>();
+    }
 
     public async Task<Shipment?> GetShipmentAsync(int id)
-        {
-            return await _httpClient.GetFromJsonAsync<Shipment>(
-                $"api/shipments/{id}");
-        }
+    {
+        return await _httpClient.GetFromJsonAsync<Shipment>(
+            $"api/shipments/{id}");
+    }
 
     public async Task<Shipment?> UpdateShipmentAsync(
         int id,
         UpdateShipmentRequest request)
-        {
-            var response = await _httpClient.PutAsJsonAsync(
-                $"api/shipments/{id}",
-                request);
+    {
+        var response = await _httpClient.PutAsJsonAsync(
+            $"api/shipments/{id}",
+            request);
 
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Shipment>();
-        }
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Shipment>();
+    }
 
     public async Task<List<ShipmentStatusHistory>> GetShipmentHistoryAsync(int id)
     {
@@ -83,5 +90,37 @@ public class ParcelDeskApiClient
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<Shipment>();
+    }
+
+    public async Task<List<Customer>> GetCustomersAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<Customer>>("api/customers") ?? new List<Customer>();
+    }
+
+    public async Task<Customer?> GetCustomerAsync(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<Customer>(
+            $"api/customers/{id}");
+    }
+
+    public async Task<Customer?> CreateCustomerAsync(
+        CreateCustomerRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync(
+            $"api/customers", request);
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Customer>();
+    }
+
+    public async Task<Customer?> UpdateCustomerAsync(int id, UpdateCustomerRequest request)
+    {
+        var response = await _httpClient.PutAsJsonAsync(
+            $"api/customers/{id}",
+            request);
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<Customer>();
     }
 }

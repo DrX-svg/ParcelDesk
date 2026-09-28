@@ -40,6 +40,38 @@ public partial class MainForm : Form
         FormClosing += MainForm_FormClosing;
 
         dgvShipments.CellDoubleClick += dgvShipments_CellDoubleClick;
+
+        btnCustomers.Click += btnCustomers_Click;
+        btnCustomerRefresh.Click += btnCustomerRefresh_Click;
+        txtCustomerSearch.KeyDown += CustomerSearch_KeyDown;
+
+        btnNewCustomer.Click += btnNewCustomer_Click;
+        dgvCustomers.CellDoubleClick += dgvCustomers_CellDoubleClick;
+    }
+
+    private async void btnCustomers_Click(object? sender, EventArgs e)
+    {
+        dashboardPanel.Visible = false;
+        shipmentsPanel.Visible = false;
+        customerPanel.Visible = true;
+
+        await LoadCustomersAsync();
+    }
+
+    private async void btnNewCustomer_Click(
+    object? sender,
+    EventArgs e)
+    {
+        using var newCustomerForm =
+            new NewCustomerForm(_apiClient);
+
+        var result =
+            newCustomerForm.ShowDialog(this);
+
+        if (result == DialogResult.OK)
+        {
+            await LoadCustomersAsync();
+        }
     }
 
     private async void dgvShipments_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
@@ -86,6 +118,7 @@ public partial class MainForm : Form
     private async void btnDashboard_Click(object? sender, EventArgs e)
     {
         shipmentsPanel.Visible = false;
+        customerPanel.Visible = false;
         dashboardPanel.Visible = true;
 
         await LoadDashboardAsync();
@@ -94,6 +127,7 @@ public partial class MainForm : Form
     private async void btnShipments_Click(object? sender, EventArgs e)
     {
         dashboardPanel.Visible = false;
+        customerPanel.Visible = false;
         shipmentsPanel.Visible = true;
         await LoadShipmentsAsync();
     }
@@ -295,5 +329,117 @@ public partial class MainForm : Form
         {
             return false;
         }
+    }
+
+    private async Task LoadCustomersAsync()
+    {
+        try
+        {
+            btnCustomerRefresh.Enabled = false;
+
+            var customers = await _apiClient.GetCustomersAsync();
+            var search = txtCustomerSearch.Text.Trim();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                customers = customers
+                    .Where(customer => 
+                        customer.Name.Contains(
+                            search,
+                            StringComparison.OrdinalIgnoreCase)
+                            ||
+                            customer.Phone.Contains(
+                                search,
+                                StringComparison.OrdinalIgnoreCase)
+                            ||
+                            (customer.Email is not null && 
+                            customer.Email.Contains(
+                                search,
+                                StringComparison.OrdinalIgnoreCase))
+                            ||
+                            customer.Address.Contains(
+                                search,
+                                StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            dgvCustomers.DataSource = customers;
+            ConfigureCustomerGrid();
+        }
+        catch (HttpRequestException ex)
+        {
+            MessageBox.Show(
+                $"Could not load customers. \n\n" +
+                $"Status: {ex.StatusCode}\n" +
+                $"{ex.Message}",
+                "API Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+        finally
+        {
+            btnCustomerRefresh.Enabled = true;
+        }
+    }
+
+    private void ConfigureCustomerGrid()
+    {
+        dgvCustomers.Columns[
+            nameof(Customer.Name)]
+            .HeaderText = "Customer";
+
+        dgvCustomers.Columns[
+            nameof(Customer.Phone)]
+            .HeaderText = "Phone";
+
+        dgvCustomers.Columns[
+            nameof(Customer.Email)]
+            .HeaderText = "Email";
+
+        dgvCustomers.Columns[
+            nameof(Customer.Address)]
+            .HeaderText = "Address";
+
+        dgvCustomers.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+    }
+
+    private async void btnCustomerRefresh_Click(object? sender, EventArgs e)
+    {
+        await LoadCustomersAsync();
+    }
+
+    private void CustomerSearch_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter)
+            return;
+
+        e.SuppressKeyPress = true;
+        btnCustomerRefresh.PerformClick();
+    }
+
+    private async void dgvCustomers_CellDoubleClick(
+    object? sender,
+    DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0)
+        {
+            return;
+        }
+
+        var row =
+            dgvCustomers.Rows[e.RowIndex];
+
+        if (row.DataBoundItem is not Customer customer)
+        {
+            return;
+        }
+
+        using var detailsForm =
+            new CustomerDetailsForm(
+                _apiClient,
+                customer.Id);
+
+        detailsForm.ShowDialog(this);
+
+        await LoadCustomersAsync();
     }
 }

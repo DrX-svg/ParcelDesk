@@ -34,6 +34,13 @@ partial class MainForm
         btnShipments = new Button();
         btnCustomers = new Button();
         contentPanel = new Panel();
+        customerPanel = new Panel();
+        dgvCustomers = new DataGridView();
+        customersHeaderPanel = new Panel();
+        btnCustomerRefresh = new Button();
+        btnNewCustomer = new Button();
+        txtCustomerSearch = new TextBox();
+        lblCustomers = new Label();
         shipmentsPanel = new Panel();
         dgvShipments = new DataGridView();
         shipmentsHeaderPanel = new Panel();
@@ -68,6 +75,9 @@ partial class MainForm
         sidebarPanel.SuspendLayout();
         navFlowPanel.SuspendLayout();
         contentPanel.SuspendLayout();
+        customerPanel.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
+        customersHeaderPanel.SuspendLayout();
         shipmentsPanel.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvShipments).BeginInit();
         shipmentsHeaderPanel.SuspendLayout();
@@ -137,6 +147,7 @@ partial class MainForm
         // 
         // contentPanel
         // 
+        contentPanel.Controls.Add(customerPanel);
         contentPanel.Controls.Add(shipmentsPanel);
         contentPanel.Controls.Add(dashboardPanel);
         contentPanel.Dock = DockStyle.Fill;
@@ -144,6 +155,81 @@ partial class MainForm
         contentPanel.Name = "contentPanel";
         contentPanel.Size = new Size(1044, 711);
         contentPanel.TabIndex = 1;
+        // 
+        // customerPanel
+        // 
+        customerPanel.Controls.Add(dgvCustomers);
+        customerPanel.Controls.Add(customersHeaderPanel);
+        customerPanel.Dock = DockStyle.Fill;
+        customerPanel.Location = new Point(0, 0);
+        customerPanel.Name = "customerPanel";
+        customerPanel.Size = new Size(1044, 711);
+        customerPanel.TabIndex = 10;
+        customerPanel.Visible = false;
+        // 
+        // dgvCustomers
+        // 
+        dgvCustomers.AllowUserToAddRows = false;
+        dgvCustomers.AllowUserToDeleteRows = false;
+        dgvCustomers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvCustomers.Dock = DockStyle.Fill;
+        dgvCustomers.Location = new Point(0, 47);
+        dgvCustomers.MultiSelect = false;
+        dgvCustomers.Name = "dgvCustomers";
+        dgvCustomers.ReadOnly = true;
+        dgvCustomers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvCustomers.Size = new Size(1044, 664);
+        dgvCustomers.TabIndex = 10;
+        // 
+        // customersHeaderPanel
+        // 
+        customersHeaderPanel.Controls.Add(btnCustomerRefresh);
+        customersHeaderPanel.Controls.Add(btnNewCustomer);
+        customersHeaderPanel.Controls.Add(txtCustomerSearch);
+        customersHeaderPanel.Controls.Add(lblCustomers);
+        customersHeaderPanel.Dock = DockStyle.Top;
+        customersHeaderPanel.Location = new Point(0, 0);
+        customersHeaderPanel.Name = "customersHeaderPanel";
+        customersHeaderPanel.Size = new Size(1044, 47);
+        customersHeaderPanel.TabIndex = 6;
+        // 
+        // btnCustomerRefresh
+        // 
+        btnCustomerRefresh.Location = new Point(656, 9);
+        btnCustomerRefresh.Name = "btnCustomerRefresh";
+        btnCustomerRefresh.Size = new Size(75, 23);
+        btnCustomerRefresh.TabIndex = 4;
+        btnCustomerRefresh.Text = "Refresh";
+        btnCustomerRefresh.UseVisualStyleBackColor = true;
+        // 
+        // btnNewCustomer
+        // 
+        btnNewCustomer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnNewCustomer.Location = new Point(922, 10);
+        btnNewCustomer.Name = "btnNewCustomer";
+        btnNewCustomer.Size = new Size(116, 23);
+        btnNewCustomer.TabIndex = 8;
+        btnNewCustomer.Text = "New Customer";
+        btnNewCustomer.UseVisualStyleBackColor = true;
+        // 
+        // txtCustomerSearch
+        // 
+        txtCustomerSearch.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+        txtCustomerSearch.Location = new Point(184, 10);
+        txtCustomerSearch.Name = "txtCustomerSearch";
+        txtCustomerSearch.PlaceholderText = "Search customers...";
+        txtCustomerSearch.Size = new Size(228, 23);
+        txtCustomerSearch.TabIndex = 7;
+        // 
+        // lblCustomers
+        // 
+        lblCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+        lblCustomers.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
+        lblCustomers.Location = new Point(3, 0);
+        lblCustomers.Name = "lblCustomers";
+        lblCustomers.Size = new Size(172, 36);
+        lblCustomers.TabIndex = 5;
+        lblCustomers.Text = "Customers";
         // 
         // shipmentsPanel
         // 
@@ -160,15 +246,15 @@ partial class MainForm
         // 
         dgvShipments.AllowUserToAddRows = false;
         dgvShipments.AllowUserToDeleteRows = false;
-        dgvShipments.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         dgvShipments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvShipments.Location = new Point(3, 43);
+        dgvShipments.Dock = DockStyle.Fill;
+        dgvShipments.Location = new Point(0, 47);
         dgvShipments.Margin = new Padding(10);
         dgvShipments.MultiSelect = false;
         dgvShipments.Name = "dgvShipments";
         dgvShipments.ReadOnly = true;
         dgvShipments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvShipments.Size = new Size(1038, 665);
+        dgvShipments.Size = new Size(1044, 664);
         dgvShipments.TabIndex = 4;
         // 
         // shipmentsHeaderPanel
@@ -181,7 +267,7 @@ partial class MainForm
         shipmentsHeaderPanel.Dock = DockStyle.Top;
         shipmentsHeaderPanel.Location = new Point(0, 0);
         shipmentsHeaderPanel.Name = "shipmentsHeaderPanel";
-        shipmentsHeaderPanel.Size = new Size(1044, 37);
+        shipmentsHeaderPanel.Size = new Size(1044, 47);
         shipmentsHeaderPanel.TabIndex = 5;
         // 
         // btnAutoSizeCol
@@ -214,7 +300,6 @@ partial class MainForm
         // 
         // btnShipmentRefresh
         // 
-        btnShipmentRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
         btnShipmentRefresh.Location = new Point(656, 9);
         btnShipmentRefresh.Name = "btnShipmentRefresh";
         btnShipmentRefresh.Size = new Size(75, 23);
@@ -228,7 +313,7 @@ partial class MainForm
         lblShipments.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
         lblShipments.Location = new Point(3, 0);
         lblShipments.Name = "lblShipments";
-        lblShipments.Size = new Size(172, 47);
+        lblShipments.Size = new Size(172, 57);
         lblShipments.TabIndex = 5;
         lblShipments.Text = "Shipments";
         lblShipments.Click += lblShipments_Click;
@@ -486,6 +571,10 @@ partial class MainForm
         sidebarPanel.PerformLayout();
         navFlowPanel.ResumeLayout(false);
         contentPanel.ResumeLayout(false);
+        customerPanel.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
+        customersHeaderPanel.ResumeLayout(false);
+        customersHeaderPanel.PerformLayout();
         shipmentsPanel.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvShipments).EndInit();
         shipmentsHeaderPanel.ResumeLayout(false);
@@ -547,4 +636,11 @@ partial class MainForm
     private Button btnShipments;
     private Button btnCustomers;
     private Button btnAutoSizeCol;
+    private Panel customerPanel;
+    private Panel customersHeaderPanel;
+    private Button btnNewCustomer;
+    private TextBox txtCustomerSearch;
+    private Button btnCustomerRefresh;
+    private Label lblCustomers;
+    private DataGridView dgvCustomers;
 }
