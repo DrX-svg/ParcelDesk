@@ -244,25 +244,19 @@ public partial class MainForm : Form
         }
     }
 
-    private void lblShipments_Click(object sender, EventArgs e)
-    {
-
-    }
-
     private void ConfigureShipmentsGrid()
     {
-        ////dgvShipments.Columns[nameof(Shipment.CustomerId)].Visible = false;
-        //dgvShipments.Columns[nameof(Shipment.SenderAddress)].Visible = false;
-        //dgvShipments.Columns[nameof(Shipment.UpdatedAtUtc)].Visible = false;
-        ////dgvShipments.Columns[nameof(Shipment.Notes)].Visible = false;
+        var awbColumn = dgvShipments.Columns[nameof(Shipment.Awb)];
+        var customerNameColumn = dgvShipments.Columns[nameof(Shipment.CustomerName)];
+        var destinationColumn = dgvShipments.Columns[nameof(Shipment.DestinationAddress)];
+        var createdColumn = dgvShipments.Columns[nameof(Shipment.CreatedAtUtc)];
+        var notesColumn = dgvShipments.Columns[nameof(Shipment.Notes)];
 
-        dgvShipments.Columns[nameof(Shipment.Awb)].HeaderText = "AWB";
-        dgvShipments.Columns[nameof(Shipment.CustomerName)].HeaderText = "Customer";
-        //dgvShipments.Columns[nameof(Shipment.CustomerId)].HeaderText = "Customer ID";
-        dgvShipments.Columns[nameof(Shipment.DestinationAddress)].HeaderText = "Destination";
-        dgvShipments.Columns[nameof(Shipment.CreatedAtUtc)].HeaderText = "Created At";
-        dgvShipments.Columns[nameof(Shipment.Notes)].HeaderText = "Notes";
-        //dgvShipments.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.Fill);
+        if (awbColumn != null) awbColumn.HeaderText = "AWB";
+        if (customerNameColumn != null) customerNameColumn.HeaderText = "Customer";
+        if (destinationColumn!= null) destinationColumn.HeaderText = "Destination";
+        if (createdColumn != null) createdColumn.HeaderText = "Created At";
+        if (notesColumn != null) notesColumn.HeaderText = "Notes";
 
         var settingsLoaded = LoadShipmentGridSettings();
 
@@ -275,7 +269,7 @@ public partial class MainForm : Form
     private readonly string _shipmentGridSettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "ParcelDesk",
-            "shipment-grid-colums.json");
+            "shipment-grid-columns.json");
 
     private void SaveShipmentGridSettings()
     {
@@ -402,21 +396,15 @@ public partial class MainForm : Form
 
     private void ConfigureCustomerGrid()
     {
-        dgvCustomers.Columns[
-            nameof(Customer.Name)]
-            .HeaderText = "Customer";
+        var nameColumn = dgvCustomers.Columns[nameof(Customer.Name)];
+        var phoneColumn = dgvCustomers.Columns[nameof(Customer.Phone)];
+        var emailColumn = dgvCustomers.Columns[nameof(Customer.Email)];
+        var addressColumn = dgvCustomers.Columns[nameof(Customer.Address)];
 
-        dgvCustomers.Columns[
-            nameof(Customer.Phone)]
-            .HeaderText = "Phone";
-
-        dgvCustomers.Columns[
-            nameof(Customer.Email)]
-            .HeaderText = "Email";
-
-        dgvCustomers.Columns[
-            nameof(Customer.Address)]
-            .HeaderText = "Address";
+        if (nameColumn != null) nameColumn.HeaderText = "Customer";
+        if (phoneColumn != null) phoneColumn.HeaderText = "Phone";
+        if (emailColumn != null) emailColumn.HeaderText = "Email";
+        if (addressColumn != null) addressColumn.HeaderText = "Address";
 
         dgvCustomers.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
     }

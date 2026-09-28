@@ -318,7 +318,6 @@ partial class MainForm
         lblShipments.Size = new Size(172, 57);
         lblShipments.TabIndex = 5;
         lblShipments.Text = "Shipments";
-        lblShipments.Click += lblShipments_Click;
         // 
         // dashboardPanel
         // 

@@ -75,20 +75,26 @@ private async Task LoadHistoryAsync()
 
         dgvHistory.DataSource = history;
 
-        if (dgvHistory.Columns.Count > 0)
-        {
-            dgvHistory.Columns[nameof(
-                ShipmentStatusHistory.Id)]
-                .Visible = false;
+        if (dgvHistory.Columns.Count == 0)
+            return;
 
-            dgvHistory.Columns[nameof(
-                ShipmentStatusHistory.ShipmentId)]
-                .Visible = false;
+        var idColumn = dgvHistory.Columns[
+            nameof(ShipmentStatusHistory.Id)];
 
-            dgvHistory.Columns[nameof(
-                ShipmentStatusHistory.ChangedAtUtc)]
-                .HeaderText = "Changed At";
-        }
+        var shipmentIdColumn= dgvHistory.Columns[
+            nameof(ShipmentStatusHistory.ShipmentId)];
+
+        var changedAtColumn = dgvHistory.Columns[
+            nameof(ShipmentStatusHistory.ChangedAtUtc)];
+
+        if (idColumn != null)
+            idColumn.Visible = false;
+
+        if (shipmentIdColumn != null)
+            shipmentIdColumn.Visible = false;
+
+        if (changedAtColumn != null)
+            changedAtColumn.HeaderText = "Changed At";
     }
 
     private void ConfigureStatusOptions()

@@ -173,7 +173,7 @@ public class ShipmentService
             return ShipmentStatusChangeResult.NotFound;
         }
 
-        if (!IsTransitionAllow(shipment.Status, newStatus))
+        if (!IsTransitionAllowed(shipment.Status, newStatus))
         {
             return ShipmentStatusChangeResult.InvalidTransition;
         }
@@ -197,7 +197,7 @@ public class ShipmentService
         return ShipmentStatusChangeResult.Updated;
     }
 
-    public async Task<List<ShipmentStatusHistory>?> GetHistoryAync(
+    public async Task<List<ShipmentStatusHistory>?> GetHistoryAsync(
         int shipmentId)
     {
         var shipmentExists = await _dbContext.Shipments
@@ -223,7 +223,7 @@ public class ShipmentService
         return $"PD-{randomPart}";
     }
 
-    private static bool IsTransitionAllow(
+    private static bool IsTransitionAllowed(
         ShipmentStatus currentStatus,
         ShipmentStatus newStatus)
     {

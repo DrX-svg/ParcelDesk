@@ -5,7 +5,7 @@ namespace ParcelDesk.Api.DTOs.Shipments;
 public class CreateShipmentRequest
 {
     [Range(1, int.MaxValue)]
-    public int CustomerID {get; set;}
+    public int CustomerId {get; set;}
 
     [Required]
     [MaxLength(500)]

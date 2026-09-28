@@ -67,7 +67,7 @@ public class ShipmentsController : ControllerBase
     public async Task<ActionResult<ShipmentResponse>> Create(CreateShipmentRequest request)
     {
         var shipment = await _shipmentService.CreateAsync(
-            request.CustomerID,
+            request.CustomerId,
             request.SenderAddress,
             request.DestinationAddress,
             request.City,
@@ -78,7 +78,7 @@ public class ShipmentsController : ControllerBase
         {
             return BadRequest(new
             {
-                error = $"Customer with id {request.CustomerID} does not exist."
+                error = $"Customer with id {request.CustomerId} does not exist."
             });
         }
 
@@ -131,7 +131,7 @@ public class ShipmentsController : ControllerBase
         {
             return Conflict(new
             {
-                error = "The requested status transition is not allowd."
+                error = "The requested status transition is not allowed."
             });
         }
 
@@ -144,7 +144,7 @@ public class ShipmentsController : ControllerBase
     public async Task<ActionResult<List<ShipmentStatusHistoryResponse>>> GetHistory(
         int id)
     {
-        var history = await _shipmentService.GetHistoryAync(id);
+        var history = await _shipmentService.GetHistoryAsync(id);
 
         if (history is null)
         {
