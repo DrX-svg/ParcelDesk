@@ -182,7 +182,8 @@
             Controls.Add(lblCustomer);
             Controls.Add(lblCurrentStatus);
             Name = "ShipmentDetailsForm";
-            Text = "Form1";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Shipment Details";
             ((System.ComponentModel.ISupportInitialize)nudWeight).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvHistory).EndInit();
             ResumeLayout(false);
