@@ -47,6 +47,8 @@ public partial class MainForm : Form
 
         btnNewCustomer.Click += btnNewCustomer_Click;
         dgvCustomers.CellDoubleClick += dgvCustomers_CellDoubleClick;
+
+        btnNewShipment.Click += btnNewShipment_Click;
     }
 
     private async void btnCustomers_Click(object? sender, EventArgs e)
@@ -56,6 +58,23 @@ public partial class MainForm : Form
         customerPanel.Visible = true;
 
         await LoadCustomersAsync();
+    }
+
+    private async void btnNewShipment_Click(object? sender, EventArgs e)
+    {
+        using var newShipmentForm =
+            new NewShipmentForm(_apiClient);
+
+        var result =
+            newShipmentForm.ShowDialog(this);
+
+        if (result != DialogResult.OK)
+        {
+            return;
+        }
+
+        await LoadShipmentsAsync();
+        await LoadDashboardAsync();
     }
 
     private async void btnNewCustomer_Click(

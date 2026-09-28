@@ -123,4 +123,16 @@ public class ParcelDeskApiClient
 
         return await response.Content.ReadFromJsonAsync<Customer>();
     }
+
+    public async Task<Shipment?> CreateShipmentAsync(
+        CreateShipmentRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync(
+            "api/shipments",
+            request);
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<Shipment>();
+    }
 }

@@ -72,6 +72,7 @@ partial class MainForm
         dashboardHeaderPanel = new Panel();
         btnRefresh = new Button();
         lblPageTitle = new Label();
+        btnNewShipment = new Button();
         sidebarPanel.SuspendLayout();
         navFlowPanel.SuspendLayout();
         contentPanel.SuspendLayout();
@@ -147,9 +148,9 @@ partial class MainForm
         // 
         // contentPanel
         // 
-        contentPanel.Controls.Add(customerPanel);
         contentPanel.Controls.Add(shipmentsPanel);
         contentPanel.Controls.Add(dashboardPanel);
+        contentPanel.Controls.Add(customerPanel);
         contentPanel.Dock = DockStyle.Fill;
         contentPanel.Location = new Point(140, 0);
         contentPanel.Name = "contentPanel";
@@ -260,6 +261,7 @@ partial class MainForm
         // shipmentsHeaderPanel
         // 
         shipmentsHeaderPanel.Controls.Add(btnAutoSizeCol);
+        shipmentsHeaderPanel.Controls.Add(btnNewShipment);
         shipmentsHeaderPanel.Controls.Add(txtShipmentsSearch);
         shipmentsHeaderPanel.Controls.Add(cmbShipmentStatus);
         shipmentsHeaderPanel.Controls.Add(btnShipmentRefresh);
@@ -555,6 +557,16 @@ partial class MainForm
         lblPageTitle.TabIndex = 6;
         lblPageTitle.Text = "Dashboard";
         // 
+        // btnNewShipment
+        // 
+        btnNewShipment.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnNewShipment.Location = new Point(791, 10);
+        btnNewShipment.Name = "btnNewShipment";
+        btnNewShipment.Size = new Size(116, 23);
+        btnNewShipment.TabIndex = 9;
+        btnNewShipment.Text = "New Shipment";
+        btnNewShipment.UseVisualStyleBackColor = true;
+        // 
         // MainForm
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
@@ -643,4 +655,5 @@ partial class MainForm
     private Button btnCustomerRefresh;
     private Label lblCustomers;
     private DataGridView dgvCustomers;
+    private Button btnNewShipment;
 }
