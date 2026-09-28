@@ -38,6 +38,29 @@ public partial class MainForm : Form
         btnAutoSizeCol.Click += btnAutoSizeCol_Click;
 
         FormClosing += MainForm_FormClosing;
+
+        dgvShipments.CellDoubleClick += dgvShipments_CellDoubleClick;
+    }
+
+    private async void dgvShipments_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0)
+        {
+            return;
+        }
+
+        var row = dgvShipments.Rows[e.RowIndex];
+
+        if (row.DataBoundItem is not Shipment shipment)
+        {
+            return;
+        }
+
+        using var detailsForm = new ShipmentDetailsForm(_apiClient, shipment.Id);
+
+        detailsForm.ShowDialog(this);
+
+        await LoadShipmentsAsync();
     }
 
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
