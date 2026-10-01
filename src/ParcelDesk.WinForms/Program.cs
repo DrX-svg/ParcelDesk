@@ -33,6 +33,6 @@ static class Program
 
                 return;
         }
-        Application.Run(new MainForm(apiClient));
+        Application.Run(new MainForm(apiClient, settings));
     }    
 }

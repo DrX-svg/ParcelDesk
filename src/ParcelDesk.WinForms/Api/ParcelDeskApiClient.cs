@@ -163,9 +163,9 @@ public class ParcelDeskApiClient
         return await response.Content.ReadFromJsonAsync<Shipment>();
     }
 
-    public async Task<bool> IsApiHealthAsync()
+    public async Task<bool> IsApiHealthyAsync(TimeSpan? timeout = null)
     {
-        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+        using var cancellationTokenSource = new CancellationTokenSource(timeout?? TimeSpan.FromSeconds(2));
 
         try
         {
@@ -195,6 +195,23 @@ public class ParcelDeskApiClient
         {
             return false;
         }
+    }
+
+    public async Task<bool> WaitUntilHealthyAsync(TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow + timeout;
+
+        while (DateTime.UtcNow < deadline)
+        {
+            var healthy = await IsApiHealthyAsync(TimeSpan.FromMilliseconds(750));
+
+            if(healthy)
+            {
+                return true;
+            }
+            await Task.Delay(250);
+        }
+        return false;
     }
 
 }

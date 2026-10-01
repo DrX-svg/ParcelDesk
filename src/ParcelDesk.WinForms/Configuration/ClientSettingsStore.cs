@@ -26,6 +26,9 @@ public static class ClientSettingsStore
             {
                 return CreateDefaultSettings();
             }
+
+            Save(settings);
+
             return settings;
         }
         catch (JsonException)
