@@ -5,6 +5,7 @@ namespace ParcelDesk.WinForms.Infrastructure;
 
 public static class LocalApiProcessManager
 {
+    private static Process? _startedProcess;
     public static bool TryStart(ClientSettings settings, out string? error)
     {
         error = null;
@@ -43,6 +44,30 @@ public static class LocalApiProcessManager
 
             startInfo.Environment["ASPNETCORE_URLS"] = settings.ApiBaseUrl.TrimEnd('/');
 
+            startInfo.Environment["Database_Provider"] = settings.DatabaseProvider;
+
+            if(settings.DatabaseProvider.Equals(
+                "Sqlite",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                if(string.IsNullOrWhiteSpace(
+                    settings.SqliteDatabasePath))
+                {
+                    error = "SQLite database path is not configured.";
+                    return false;
+                }
+
+                var databaseDirectory = Path.GetDirectoryName(settings.SqliteDatabasePath);
+
+                if(!string.IsNullOrWhiteSpace(databaseDirectory))
+                {
+                    Directory.CreateDirectory(databaseDirectory);
+                }
+
+                startInfo.Environment[
+                    "ConnectionStrings__ParcelDeskDb"] = $"Data Source = {settings.SqliteDatabasePath}";
+            }
+
             if(!string.IsNullOrWhiteSpace(settings.LocalApiEnvironment))
             {
                 startInfo.Environment["ASPNETCORE_ENVIRONMENT"] = settings.LocalApiEnvironment;
@@ -57,6 +82,7 @@ public static class LocalApiProcessManager
                 error = "The ParcelDesk API process could not be started.";
                 return false;
             }
+            _startedProcess = process;
             return true;
         }
         catch(Exception ex)
@@ -75,5 +101,30 @@ public static class LocalApiProcessManager
         return Path.GetFullPath(Path.Combine(
                                             AppContext.BaseDirectory,
                                             configuredPath));
+    }
+
+    public static void StopIfStarted()
+    {
+        if(_startedProcess is null)
+        {
+            return;
+        }
+        try
+        {
+            if(!_startedProcess.HasExited)
+            {
+                _startedProcess.Kill(entireProcessTree: true);
+                _startedProcess.WaitForExit(3000);
+            }
+        }
+        catch
+        {
+            //Aplication shutdown should continue even if the process cannot be stopped.
+        }
+        finally
+        {
+            _startedProcess.Dispose();
+            _startedProcess = null;
+        }
     }
 }

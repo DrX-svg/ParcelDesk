@@ -121,6 +121,7 @@ public partial class MainForm : Form
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
         SaveShipmentGridSettings();
+        LocalApiProcessManager.StopIfStarted();
     }
 
     private void btnAutoSizeCol_Click(object? sender, EventArgs e)

@@ -16,6 +16,18 @@ static class Program
 
         var settings = ClientSettingsStore.LoadOrCreate();
 
+        if(!settings.IsConfigured)
+        {
+            using var setupForm = new FirstRunSetupForm(settings);
+            var result = setupForm.ShowDialog();
+            if(result != DialogResult.OK)
+            {
+                return;
+            }
+
+            settings = ClientSettingsStore.LoadOrCreate();
+        }
+
         ParcelDeskApiClient apiClient;
 
         try
@@ -33,6 +45,9 @@ static class Program
 
                 return;
         }
-        Application.Run(new MainForm(apiClient, settings));
+        Application.Run(
+            new MainForm(
+                apiClient, 
+                settings));
     }    
 }
