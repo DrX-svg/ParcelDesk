@@ -8,9 +8,11 @@ public partial class MainForm : Form
 {
     private readonly ParcelDeskApiClient _apiClient;
 
-    public MainForm()
+    public MainForm(ParcelDeskApiClient apiClient)
     {
         InitializeComponent();
+
+        _apiClient = apiClient;
 
         cmbShipmentStatus.Items.AddRange(
             [
@@ -24,7 +26,6 @@ public partial class MainForm : Form
 
         cmbShipmentStatus.SelectedIndex = 0;
 
-        _apiClient = new ParcelDeskApiClient();
         Load += MainForm_Load;
         btnRefresh.Click += buttonRefresh_Click;
         btnDashboard.Click += btnDashboard_Click;

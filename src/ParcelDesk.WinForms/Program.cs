@@ -1,5 +1,7 @@
-namespace ParcelDesk.WinForms;
+using ParcelDesk.WinForms.Api;
+using ParcelDesk.WinForms.Configuration;
 
+namespace ParcelDesk.WinForms;
 static class Program
 {
     /// <summary>
@@ -11,6 +13,26 @@ static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm());
+
+        var settings = ClientSettingsStore.LoadOrCreate();
+
+        ParcelDeskApiClient apiClient;
+
+        try
+        {
+            apiClient = new ParcelDeskApiClient(settings.ApiBaseUrl);
+        }
+        catch (ArgumentException ex)
+        {
+            MessageBox.Show(
+                $"ParcelDesk configuration is invalid.\n\n"+
+                $"{ex.Message}",
+                "ParcelDesk",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+
+                return;
+        }
+        Application.Run(new MainForm(apiClient));
     }    
 }

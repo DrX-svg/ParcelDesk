@@ -6,13 +6,39 @@ namespace ParcelDesk.WinForms.Api;
 public class ParcelDeskApiClient
 {
     private readonly HttpClient _httpClient;
-    public ParcelDeskApiClient()
+    public ParcelDeskApiClient(string apiBaseUrl)
     {
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            throw new ArgumentException(
+                "API base URL cannot be empty",
+                nameof(apiBaseUrl));
+        }
+
+        if (!Uri.TryCreate(
+            apiBaseUrl,
+            UriKind.Absolute,
+            out var baseUri))
+        {
+            throw new ArgumentException(
+                "API base URL is invalid.",
+                nameof(apiBaseUrl));
+        }
+
+        if (baseUri.Scheme != Uri.UriSchemeHttp && 
+            baseUri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new ArgumentException(
+                "API base URL must use HTTP or HTTPS.",
+                nameof(apiBaseUrl));
+        }
+
         _httpClient = new HttpClient
         {
-            BaseAddress = new Uri("http://localhost:5000/")
+            BaseAddress = baseUri
         };
     }
+    
     public async Task<DashboardSummary?> GetDashboardSummaryAsync()
     {
         return await _httpClient.GetFromJsonAsync<DashboardSummary>(
