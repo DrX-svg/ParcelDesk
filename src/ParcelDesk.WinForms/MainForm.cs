@@ -192,6 +192,18 @@ public partial class MainForm : Form
 
     private async void MainForm_Load(object? sender, EventArgs e)
     {
+        var apiIsHealthy = await _apiClient.IsApiHealthAsync();
+
+        if(!apiIsHealthy)
+        {
+            MessageBox.Show(
+                "The ParcelDesk API is not available.\n\n" +
+                "Check the API configuration or start the backend service.",
+                "ParcelDesk",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            return;
+        }
         await LoadDashboardAsync();
     }
 

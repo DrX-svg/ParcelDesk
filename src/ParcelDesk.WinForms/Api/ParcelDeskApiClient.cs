@@ -1,5 +1,6 @@
-﻿using System.Net.Http.Json;
-using ParcelDesk.WinForms.Models;
+﻿using ParcelDesk.WinForms.Models;
+using System.Net.Http.Json;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ParcelDesk.WinForms.Api;
 
@@ -161,4 +162,39 @@ public class ParcelDeskApiClient
 
         return await response.Content.ReadFromJsonAsync<Shipment>();
     }
+
+    public async Task<bool> IsApiHealthAsync()
+    {
+        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                "api/health",
+                cancellationTokenSource.Token);
+
+            if(!response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            var health = await response.Content
+                                            .ReadFromJsonAsync<HealthResponse>(
+                                                                               cancellationToken: cancellationTokenSource.Token);
+
+            return string.Equals(
+                    health?.Status,
+                    "ok",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
 }
