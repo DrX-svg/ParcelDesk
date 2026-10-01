@@ -214,4 +214,28 @@ public class ParcelDeskApiClient
         return false;
     }
 
+    public async Task<bool> IsDatabaseHealthyAsync(TimeSpan? timeout = null)
+    {
+        using var cancellationTokenSource =
+            new CancellationTokenSource(
+                timeout ??
+                TimeSpan.FromSeconds(5));
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                "api/health/database",
+                cancellationTokenSource.Token);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch(HttpRequestException)
+        {
+            return false;
+        }
+        catch(OperationCanceledException)
+        {
+            return false;
+        }
+    }
 }

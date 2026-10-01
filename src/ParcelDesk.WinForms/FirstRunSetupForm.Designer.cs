@@ -35,6 +35,7 @@
             pnlLocalStandalone = new Panel();
             lblLocalDescription = new Label();
             pnlMySql = new Panel();
+            btnTestMySqlConnection = new Button();
             txtMySqlPassword = new TextBox();
             txtMySqlUsername = new TextBox();
             txtMySqlDatabase = new TextBox();
@@ -107,6 +108,7 @@
             // 
             // pnlMySql
             // 
+            pnlMySql.Controls.Add(btnTestMySqlConnection);
             pnlMySql.Controls.Add(txtMySqlPassword);
             pnlMySql.Controls.Add(txtMySqlUsername);
             pnlMySql.Controls.Add(txtMySqlDatabase);
@@ -117,9 +119,18 @@
             pnlMySql.Size = new Size(427, 184);
             pnlMySql.TabIndex = 5;
             // 
+            // btnTestMySqlConnection
+            // 
+            btnTestMySqlConnection.Location = new Point(312, 15);
+            btnTestMySqlConnection.Name = "btnTestMySqlConnection";
+            btnTestMySqlConnection.Size = new Size(112, 23);
+            btnTestMySqlConnection.TabIndex = 5;
+            btnTestMySqlConnection.Text = "Test Connection";
+            btnTestMySqlConnection.UseVisualStyleBackColor = true;
+            // 
             // txtMySqlPassword
             // 
-            txtMySqlPassword.Location = new Point(3, 158);
+            txtMySqlPassword.Location = new Point(0, 135);
             txtMySqlPassword.Name = "txtMySqlPassword";
             txtMySqlPassword.PlaceholderText = "Password";
             txtMySqlPassword.Size = new Size(100, 23);
@@ -128,7 +139,7 @@
             // 
             // txtMySqlUsername
             // 
-            txtMySqlUsername.Location = new Point(3, 105);
+            txtMySqlUsername.Location = new Point(0, 95);
             txtMySqlUsername.Name = "txtMySqlUsername";
             txtMySqlUsername.PlaceholderText = "Username";
             txtMySqlUsername.Size = new Size(100, 23);
@@ -136,7 +147,7 @@
             // 
             // txtMySqlDatabase
             // 
-            txtMySqlDatabase.Location = new Point(3, 32);
+            txtMySqlDatabase.Location = new Point(0, 55);
             txtMySqlDatabase.Name = "txtMySqlDatabase";
             txtMySqlDatabase.PlaceholderText = "Database";
             txtMySqlDatabase.Size = new Size(100, 23);
@@ -144,7 +155,7 @@
             // 
             // nudMySqlPort
             // 
-            nudMySqlPort.Location = new Point(134, 3);
+            nudMySqlPort.Location = new Point(131, 15);
             nudMySqlPort.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             nudMySqlPort.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             nudMySqlPort.Name = "nudMySqlPort";
@@ -154,7 +165,7 @@
             // 
             // txtMySqlServer
             // 
-            txtMySqlServer.Location = new Point(3, 3);
+            txtMySqlServer.Location = new Point(0, 15);
             txtMySqlServer.Name = "txtMySqlServer";
             txtMySqlServer.PlaceholderText = "Server";
             txtMySqlServer.Size = new Size(100, 23);
@@ -222,5 +233,6 @@
         private TextBox txtMySqlDatabase;
         private NumericUpDown nudMySqlPort;
         private TextBox txtMySqlServer;
+        private Button btnTestMySqlConnection;
     }
 }

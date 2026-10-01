@@ -7,6 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var databaseProvider = builder.Configuration["Database:Provider"] ?? "MySql";
 
+var autoMigrate = builder.Configuration.GetValue(
+    "Database:AutoMigrate", 
+    true);
+
 var connectionString =
     builder.Configuration.GetConnectionString("ParcelDeskDb")
         ?? throw new InvalidOperationException("Connection string 'ParcelDeskDb' was not found.");
@@ -48,6 +52,18 @@ if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
     var dbContext = scope.ServiceProvider.GetRequiredService<ParcelDbContext>();
 
     await dbContext.Database.EnsureCreatedAsync();
+}
+else if (databaseProvider.Equals(
+    "MySql",
+    StringComparison.OrdinalIgnoreCase)
+    && autoMigrate)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<ParcelDbContext>();
+
+    await dbContext.Database
+        .MigrateAsync();
 }
 
 app.MapControllers();
