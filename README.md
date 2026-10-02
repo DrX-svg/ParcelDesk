@@ -6,6 +6,13 @@ shipments, shipment status history and delivery workflows.
 It was built as a full-stack .NET desktop project using a REST API architecture,
 Entity Framework Core and configurable database persistence.
 
+## Download
+
+The latest Windows installer is available from the
+[ParcelDesk v0.2.0 release](https://github.com/DrX-svg/ParcelDesk/releases/tag/v0.2.0).
+
+**Windows x64 · Self-contained · No separate .NET installation required**
+
 ## Screenshots
 
 ### Dashboard
