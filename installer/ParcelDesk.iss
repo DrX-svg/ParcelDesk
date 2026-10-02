@@ -35,6 +35,14 @@ SetupLogging=yes
 CloseApplications=yes
 RestartApplications=no
 
+SetupIconFile=..\src\ParcelDesk.WinForms\Assets\ParcelDesk.ico
+
+AppVerName=ParcelDesk 0.2.0
+
+VersionInfoCompany=ParcelDesk
+VersionInfoDescription=ParcelDesk Setup
+VersionInfoCopyright=Copyright (c) 2026 DrX-svg
+LicenseFile=..\LICENSE
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
