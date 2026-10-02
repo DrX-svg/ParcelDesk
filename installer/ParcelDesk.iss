@@ -64,6 +64,17 @@ Source: "..\publish\Api\*"; \
     DestDir: "{app}\Api"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
+Source: "..\LICENSE"; \
+    DestDir: "{app}"; \
+    Flags: ignoreversion
+
+Source: "..\NOTICE"; \
+    DestDir: "{app}"; \
+    Flags: ignoreversion
+
+Source: "..\COMMERCIAL-LICENSING.md"; \
+    DestDir: "{app}"; \
+    Flags: ignoreversion
 
 [Icons]
 Name: "{group}\ParcelDesk"; \
