@@ -2,7 +2,7 @@
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![Platform](https://img.shields.io/badge/platform-Windows%20x64-0078D6)
 [![Release](https://img.shields.io/github/v/release/DrX-svg/ParcelDesk)](https://github.com/DrX-svg/ParcelDesk/releases/latest)
-![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-lightgrey)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-lightgrey)](LICENSE)
 
 ParcelDesk is a Windows desktop application for managing customers, parcel
 shipments, shipment status history and delivery workflows.
