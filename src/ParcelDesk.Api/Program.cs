@@ -5,11 +5,15 @@ using ParcelDesk.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var databaseProvider = builder.Configuration["Database:Provider"] ?? "MySql";
+
+var autoMigrate = builder.Configuration.GetValue(
+    "Database:AutoMigrate", 
+    true);
+
 var connectionString =
     builder.Configuration.GetConnectionString("ParcelDeskDb")
         ?? throw new InvalidOperationException("Connection string 'ParcelDeskDb' was not found.");
-
-// Add services to the container.
 
 builder.Services
                 .AddControllers()
@@ -19,7 +23,21 @@ builder.Services
                         new JsonStringEnumConverter());
                 });
 
-builder.Services.AddDbContext<ParcelDbContext>(options => options.UseMySQL(connectionString));
+builder.Services.AddDbContext<ParcelDbContext>(
+    options =>
+    {
+    switch (databaseProvider.ToLowerInvariant())
+        {
+            case "sqlite":
+                options.UseSqlite(connectionString);
+                break;
+            case "mysql":
+                options.UseMySQL(connectionString);
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported database provider: {databaseProvider}");
+        }
+    });
 
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<ShipmentService>();
@@ -27,7 +45,26 @@ builder.Services.AddScoped<DashboardService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+{
+    using var scope = app.Services.CreateScope();
+
+    var dbContext = scope.ServiceProvider.GetRequiredService<ParcelDbContext>();
+
+    await dbContext.Database.EnsureCreatedAsync();
+}
+else if (databaseProvider.Equals(
+    "MySql",
+    StringComparison.OrdinalIgnoreCase)
+    && autoMigrate)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<ParcelDbContext>();
+
+    await dbContext.Database
+        .MigrateAsync();
+}
 
 app.MapControllers();
 

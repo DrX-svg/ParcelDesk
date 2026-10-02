@@ -1,16 +1,21 @@
 using ParcelDesk.WinForms.Api;
 using ParcelDesk.WinForms.Models;
 using System.Text.Json;
+using ParcelDesk.WinForms.Infrastructure;
 
 namespace ParcelDesk.WinForms;
 
 public partial class MainForm : Form
 {
     private readonly ParcelDeskApiClient _apiClient;
+    private readonly ClientSettings _settings;
 
-    public MainForm()
+    public MainForm(ParcelDeskApiClient apiClient, ClientSettings settings)
     {
         InitializeComponent();
+
+        _apiClient = apiClient;
+        _settings = settings;
 
         cmbShipmentStatus.Items.AddRange(
             [
@@ -24,7 +29,6 @@ public partial class MainForm : Form
 
         cmbShipmentStatus.SelectedIndex = 0;
 
-        _apiClient = new ParcelDeskApiClient();
         Load += MainForm_Load;
         btnRefresh.Click += buttonRefresh_Click;
         btnDashboard.Click += btnDashboard_Click;
@@ -117,6 +121,7 @@ public partial class MainForm : Form
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
         SaveShipmentGridSettings();
+        LocalApiProcessManager.StopIfStarted();
     }
 
     private void btnAutoSizeCol_Click(object? sender, EventArgs e)
@@ -191,6 +196,34 @@ public partial class MainForm : Form
 
     private async void MainForm_Load(object? sender, EventArgs e)
     {
+        var apiIsHealthy = await _apiClient.IsApiHealthyAsync();
+
+        if(!apiIsHealthy && _settings.AutoStartLocalApi)
+        {
+            var started = LocalApiProcessManager.TryStart(_settings, out var startError);
+
+            if(!started)
+            {
+                MessageBox.Show(
+                    "The ParcelDesk API could not be started.\n\n" +
+                    $"{startError}",
+                    "ParcelDesk",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+            apiIsHealthy = await _apiClient.WaitUntilHealthyAsync(TimeSpan.FromSeconds(10));
+        }
+        if (!apiIsHealthy)
+        {
+            MessageBox.Show(
+                "The ParcelDesk API is not available.\n\n" +
+                "Check the API configuration.",
+                "ParcelDesk",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+            return;
+        }
         await LoadDashboardAsync();
     }
 

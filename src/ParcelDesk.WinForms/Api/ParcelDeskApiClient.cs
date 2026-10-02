@@ -1,18 +1,45 @@
-﻿using System.Net.Http.Json;
-using ParcelDesk.WinForms.Models;
+﻿using ParcelDesk.WinForms.Models;
+using System.Net.Http.Json;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ParcelDesk.WinForms.Api;
 
 public class ParcelDeskApiClient
 {
     private readonly HttpClient _httpClient;
-    public ParcelDeskApiClient()
+    public ParcelDeskApiClient(string apiBaseUrl)
     {
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            throw new ArgumentException(
+                "API base URL cannot be empty",
+                nameof(apiBaseUrl));
+        }
+
+        if (!Uri.TryCreate(
+            apiBaseUrl,
+            UriKind.Absolute,
+            out var baseUri))
+        {
+            throw new ArgumentException(
+                "API base URL is invalid.",
+                nameof(apiBaseUrl));
+        }
+
+        if (baseUri.Scheme != Uri.UriSchemeHttp && 
+            baseUri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new ArgumentException(
+                "API base URL must use HTTP or HTTPS.",
+                nameof(apiBaseUrl));
+        }
+
         _httpClient = new HttpClient
         {
-            BaseAddress = new Uri("http://localhost:5000/")
+            BaseAddress = baseUri
         };
     }
+    
     public async Task<DashboardSummary?> GetDashboardSummaryAsync()
     {
         return await _httpClient.GetFromJsonAsync<DashboardSummary>(
@@ -134,5 +161,81 @@ public class ParcelDeskApiClient
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<Shipment>();
+    }
+
+    public async Task<bool> IsApiHealthyAsync(TimeSpan? timeout = null)
+    {
+        using var cancellationTokenSource = new CancellationTokenSource(timeout?? TimeSpan.FromSeconds(2));
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                "api/health",
+                cancellationTokenSource.Token);
+
+            if(!response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            var health = await response.Content
+                                            .ReadFromJsonAsync<HealthResponse>(
+                                                                               cancellationToken: cancellationTokenSource.Token);
+
+            return string.Equals(
+                    health?.Status,
+                    "ok",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> WaitUntilHealthyAsync(TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow + timeout;
+
+        while (DateTime.UtcNow < deadline)
+        {
+            var healthy = await IsApiHealthyAsync(TimeSpan.FromMilliseconds(750));
+
+            if(healthy)
+            {
+                return true;
+            }
+            await Task.Delay(250);
+        }
+        return false;
+    }
+
+    public async Task<bool> IsDatabaseHealthyAsync(TimeSpan? timeout = null)
+    {
+        using var cancellationTokenSource =
+            new CancellationTokenSource(
+                timeout ??
+                TimeSpan.FromSeconds(5));
+
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                "api/health/database",
+                cancellationTokenSource.Token);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch(HttpRequestException)
+        {
+            return false;
+        }
+        catch(OperationCanceledException)
+        {
+            return false;
+        }
     }
 }
